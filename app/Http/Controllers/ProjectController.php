@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProjectMassUpdateRequest;
 use App\Models\Project;
 use App\Models\Stat;
 use Illuminate\Http\Request;
@@ -18,7 +19,7 @@ class ProjectController extends Controller
         return redirect('/')->with('success', 'Project created');
     }
 
-    public function mass_update(Request $request)
+    public function mass_update(ProjectMassUpdateRequest $request)
     {
         // TASK: Transform this SQL query into Eloquent
         // update projects
@@ -26,6 +27,11 @@ class ProjectController extends Controller
         //   where name = $request->old_name
 
         // Insert Eloquent statement below
+        Project::query()
+            ->where('name', $request->input('old_name', null))
+            ->update([
+                'name' => $request->input('new_name', null)
+            ]);
 
         return redirect('/')->with('success', 'Projects updated');
     }
@@ -35,7 +41,7 @@ class ProjectController extends Controller
         Project::destroy($projectId);
 
         // TASK: change this Eloquent statement to include the soft-deletes records
-        $projects = Project::all();
+        $projects = Project::withSoftDeleted()->get();
 
         return view('projects.index', compact('projects'));
     }
